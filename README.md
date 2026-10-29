@@ -6,7 +6,7 @@ Une petite application React / TypeScript / Node.js pour travailler ensemble sur
 
 JOIN Studio permet à un marchand de suivre et relancer ses créations vidéo. La fabrication est confiée à **RenderLab, un fournisseur fictif** : il accepte une demande, lui attribue un identifiant de traitement, exécute le travail puis notifie sa réussite ou son échec. Une acceptation signifie que le travail est pris en charge, pas que la vidéo est déjà prête. Chaque nouveau traitement accepté représente un coût fictif, même si son exécution échoue.
 
-Studio porte l’expérience utilisateur, les règles de relance et l’état affiché. RenderLab porte l’acceptation et l’exécution du traitement, puis son résultat. Dans ce dépôt, les demandes sont réduites à un identifiant de génération : les médias, prompts et fichiers vidéo ne sont pas implémentés. Le fournisseur est simulé dans le processus de l’API avec des timers ; les lignes `jobs` représentent ses traitements. Il n’y a pas de file Bull/BullMQ ni de worker séparé dans le socle.
+Studio porte l’expérience utilisateur, les règles de relance et l’état affiché. RenderLab porte l’acceptation et l’exécution du traitement, puis son résultat. Dans ce dépôt, les demandes sont réduites à un identifiant de génération : aucun média ni prompt n’est envoyé au fournisseur. Trois clips de démonstration de 8 secondes sont fournis dans `public/media/` et deviennent lisibles quand leur carte est prête ; ils ne sont pas générés à chaque relance. Le fournisseur est simulé dans le processus de l’API avec des timers ; les lignes `jobs` représentent ses traitements. Il n’y a pas de file Bull/BullMQ ni de worker séparé dans le socle.
 
 ## Avant l'entretien
 
@@ -37,6 +37,8 @@ Le problème produit sera présenté au début de la session. Vous pouvez poser 
 ## Se repérer
 
 - `src/web/` : interface React et styles.
+- `src/web/ui/` : composants réutilisables et tokens du [design system](DESIGN_SYSTEM.md), visible sur `/design-system`.
+- `public/media/` : images et clips locaux de démonstration, sans téléchargement externe au démarrage.
 - `src/server/app.ts` : routes HTTP.
 - `src/server/generations.ts` : logique des générations.
 - `src/server/provider.ts` : simulateur du fournisseur.

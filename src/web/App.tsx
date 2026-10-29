@@ -2,6 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 import { snapshotSchema, type Snapshot } from "../shared/contracts";
 
+import { Button } from "./ui/Button";
+import { Badge } from "./ui/Badge";
+import { Notice } from "./ui/Notice";
+import { Icon } from "./ui/Icon";
+import { GenerationCard } from "./components/GenerationCard";
+
 const labels = { failed: "Échec", running: "En cours", succeeded: "Prête" };
 export function App() {
   const [data, setData] = useState<Snapshot>({
@@ -57,39 +63,67 @@ export function App() {
   }
   return (
     <div className="shell">
-      <aside>
-        <a className="logo" href="/">
+      <aside className="sidebar">
+        <a className="logo" href="/" aria-label="JOIN Studio">
           JOIN<span>●</span>
         </a>
         <div className="workspace">
-          ATELIER DEMO <span>⌄</span>
+          <span className="workspace-mark">a.</span>Atelier Demo
+          <Icon name="chevron" />
         </div>
-        <nav>
-          <span>Vue d’ensemble</span>
-          <span>Stories</span>
-          <span>Shopping Agent</span>
-          <strong>✦ AI Video Creation</strong>
-          <span>Médiathèque</span>
+        <p className="nav-label">VOTRE ESPACE</p>
+        <nav aria-label="Produits JOIN">
+          <span>
+            <Icon name="grid" />
+            Vue d’ensemble
+          </span>
+          <span>
+            <Icon name="layers" />
+            Stories
+          </span>
+          <span>
+            <Icon name="bag" />
+            Shopping Agent
+          </span>
+          <strong aria-current="page">
+            <Icon name="sparkles" />
+            AI Video Creation
+          </strong>
+          <span>
+            <Icon name="film" />
+            Médiathèque
+          </span>
         </nav>
         <div className="aside-bottom">
-          Espace de démonstration
-          <br />
-          <small>Données fictives · aucun coût réel</small>
+          <a href="/design-system">
+            <Icon name="grid" />
+            Design system
+            <Icon name="arrow" />
+          </a>
+          <div className="demo-note">
+            <strong>Un espace pour expérimenter.</strong>Données fictives, aucun
+            coût réel.
+          </div>
         </div>
       </aside>
-      <main>
-        <header>
+      <main className="studio-main">
+        <header className="studio-header">
           <div>
-            <span className="eyebrow">AI STUDIO / CRÉATION</span>
+            <span className="eyebrow">
+              <Icon name="sparkles" />
+              AI VIDEO CREATION
+            </span>
             <h1>Vos produits prennent vie.</h1>
             <p>
-              Suivez vos vidéos confiées à RenderLab, notre fournisseur fictif
-              de génération vidéo, et relancez celles qui en ont besoin.
+              Du produit à l’histoire. Retrouvez vos créations vidéo et donnez
+              une nouvelle chance à celles qui en ont besoin.
             </p>
           </div>
-          <div className="avatar">AD</div>
+          <div className="avatar" aria-label="Atelier Demo">
+            AD
+          </div>
         </header>
-        <section className="summary">
+        <section className="summary" aria-label="Résumé des générations">
           <div>
             <b>{data.generations.length}</b>
             <span>produits</span>
@@ -107,101 +141,82 @@ export function App() {
             <span>à reprendre</span>
           </div>
           <p>
-            Collection d’automne <span>2026</span>
+            <Icon name="sparkles" />
+            Collection d’automne · 2026
           </p>
         </section>
         {error && (
-          <div className="alert" role="alert">
+          <Notice tone="danger" announce>
             {error}
-          </div>
+          </Notice>
         )}
-        <section>
+        <section aria-labelledby="generations-title">
           <div className="section-heading">
-            <h2>Générations récentes</h2>
-            <span>Actualisation automatique</span>
+            <h2 id="generations-title">Générations récentes</h2>
+            <span>
+              <span className="live-dot" />
+              Actualisation automatique
+            </span>
           </div>
           <div className="cards">
             {data.generations.map((g) => (
-              <article className="card" key={g.id}>
-                <div className="visual" style={{ background: g.color }}>
-                  <span className="visual-word">{g.product.split(" ")[1]}</span>
-                  <div className="sculpture">
-                    {g.id === "gen-atelier"
-                      ? "◒"
-                      : g.id === "gen-horizon"
-                      ? "◉"
-                      : "◓"}
-                  </div>
-                  <span className="format">9:16 · 8 secondes</span>
-                </div>
-                <div className="card-body">
-                  <div className="card-title">
-                    <h3>{g.product}</h3>
-                    <span className={`badge ${g.status}`}>
-                      {labels[g.status]}
-                    </span>
-                  </div>
-                  <p className="subline">Vidéo produit · Studio naturel</p>
-                  <div className="status-text">
-                    {g.status === "failed"
-                      ? g.error
-                      : g.status === "running"
-                      ? "Votre vidéo est en préparation…"
-                      : "Votre vidéo est prête à être utilisée."}
-                  </div>
-                  <button
-                    disabled={g.status !== "failed"}
-                    onClick={() =>
-                      void act(() => post(`/api/generations/${g.id}/retry`))
-                    }
-                  >
-                    {g.status === "failed"
-                      ? "Relancer la génération"
-                      : g.status === "running"
-                      ? "Génération en cours…"
-                      : "Génération terminée"}
-                  </button>
-                </div>
-              </article>
+              <GenerationCard
+                key={g.id}
+                generation={g}
+                onRetry={() =>
+                  void act(() => post(`/api/generations/${g.id}/retry`))
+                }
+              />
             ))}
           </div>
         </section>
         <section className="tools">
-          <button
+          <Button
+            variant="ghost"
             className="tools-toggle"
             onClick={() => setShowTools(!showTools)}
             aria-expanded={showTools}
+            aria-controls="simulation-tools"
           >
-            Outils de développement {showTools ? "−" : "+"}
-          </button>
+            <span>
+              <Icon name="code" />
+              Outils de développement
+            </span>
+            <span aria-hidden="true">{showTools ? "−" : "+"}</span>
+          </Button>
           {showTools && (
-            <div>
+            <div className="tools-content" id="simulation-tools">
               <p>
-                RenderLab accepte les demandes de vidéo, exécute les traitements
-                puis notifie leur réussite ou leur échec. Dans cet exercice,
-                tout est simulé : aucune vidéo ni facture réelle. Chaque nouveau
-                traitement accepté représente un coût fictif, même s’il échoue.
+                <strong>RenderLab, fournisseur fictif.</strong> Il accepte les
+                demandes, effectue le traitement puis notifie leur résultat.
+                Chaque nouveau traitement accepté représente un coût fictif,
+                même s’il échoue. Les clips de démonstration sont déjà inclus
+                dans l’application ; aucun service externe ni paiement réel.
               </p>
               <div className="toolbar">
-                <button
+                <Button
+                  size="sm"
                   onClick={() => void act(() => post("/api/simulator/reset"))}
                 >
+                  <Icon name="retry" />
                   Réinitialiser la démo
-                </button>
-                <button
+                </Button>
+                <Button
+                  size="sm"
                   onClick={() =>
                     void act(() => post("/api/simulator/fail-next"))
                   }
                 >
                   Faire échouer le prochain traitement
-                </button>
-                <button
+                </Button>
+                <Button
+                  size="sm"
                   onClick={() =>
                     void act(() => post("/api/simulator/lose-next-ack"))
                   }
                 >
                   Perdre la prochaine confirmation
-                </button>
+                </Button>
               </div>
               <h3>Traitements RenderLab</h3>
               <div className="table-wrap">
@@ -227,9 +242,22 @@ export function App() {
                         <td>
                           <code>{j.id}</code>
                         </td>
-                        <td>{labels[j.status]}</td>
                         <td>
-                          <button
+                          <Badge
+                            tone={
+                              j.status === "failed"
+                                ? "danger"
+                                : j.status === "running"
+                                ? "warning"
+                                : "success"
+                            }
+                          >
+                            {labels[j.status]}
+                          </Badge>
+                        </td>
+                        <td>
+                          <Button
+                            size="sm"
                             disabled={j.status === "running"}
                             onClick={() =>
                               void act(() =>
@@ -238,7 +266,7 @@ export function App() {
                             }
                           >
                             Renvoyer le résultat
-                          </button>
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -253,7 +281,7 @@ export function App() {
                       <time>
                         {new Date(e.createdAt).toLocaleTimeString("fr-FR")}
                       </time>{" "}
-                      <code>{e.type}</code> · {e.detail}{" "}
+                      <code>{e.type}</code> · {e.detail}
                       <small>{e.jobId}</small>
                     </p>
                   ))}
@@ -262,9 +290,11 @@ export function App() {
             </div>
           )}
         </section>
-        <footer>
-          JOIN · AI Video Creation{" "}
-          <span>Environnement d’entretien — RenderLab simulé</span>
+        <footer className="studio-footer">
+          <span>JOIN · Créations par RenderLab, fournisseur fictif.</span>
+          <span>
+            Clips de démonstration · <a href="/design-system">Design system</a>
+          </span>
         </footer>
       </main>
     </div>

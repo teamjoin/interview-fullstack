@@ -29,6 +29,7 @@ services:
       - "127.0.0.1:${APP_PORT:-4310}:${APP_PORT:-4310}"
     volumes:
       - ./src:/app/src
+      - ./public:/app/public
       - ./index.html:/app/index.html
       - ./vite.config.ts:/app/vite.config.ts
     depends_on:

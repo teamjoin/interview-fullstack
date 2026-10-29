@@ -2,7 +2,7 @@
 
 RenderLab représente le prestataire auquel Studio confie la fabrication d’une vidéo. Il accepte une demande de traitement, réalise le travail puis notifie son résultat. Studio reste responsable des relances et de l’état présenté à l’utilisateur. Une confirmation d’acceptation n’est pas un résultat de génération.
 
-Dans l’exercice, ce service distant est remplacé par un simulateur local : aucun appel IA, fichier vidéo ou paiement réel. Les lignes `jobs` sont les traitements du fournisseur, pas des tâches BullMQ. Ne changez pas ses garanties ou ses délais pour corriger le produit. Les données et les coûts sont fictifs.
+Dans l’exercice, ce service distant est remplacé par un simulateur local : aucun appel IA, aucune fabrication de fichier vidéo à l’exécution et aucun paiement réel. Les vidéos lisibles dans les cartes sont des clips de démonstration déjà fournis avec le dépôt. Les lignes `jobs` sont les traitements du fournisseur, pas des tâches BullMQ. Ne changez pas ses garanties ou ses délais pour corriger le produit. Les données et les coûts sont fictifs.
 
 ## Envoyer un travail
 
