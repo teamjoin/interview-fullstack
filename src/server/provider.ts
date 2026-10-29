@@ -15,7 +15,7 @@ export function createProvider(store: Store) {
       if (event.status === "succeeded") {
         store.db
           .prepare(
-            "UPDATE jobs SET status = 'succeeded', error = NULL WHERE id = ?",
+            "UPDATE jobs SET status = 'succeeded', error = NULL WHERE id = ?"
           )
           .run(event.jobId);
       } else {
@@ -27,13 +27,16 @@ export function createProvider(store: Store) {
         event.generationId,
         event.jobId,
         "provider.result",
-        event.status,
+        event.status
       );
       callback(event);
     }, ms);
     timers.add(timer);
   }
-  async function submit(generationId: string, requestId = randomUUID()) {
+  async function submit(
+    generationId: string,
+    requestId: string = randomUUID()
+  ) {
     const requestEpoch = epoch;
     const shouldFail = failNext;
     const shouldLoseAck = loseNextAck;
@@ -61,17 +64,17 @@ export function createProvider(store: Store) {
             error: "Service de génération temporairement indisponible.",
           }
         : { generationId, jobId: id, status: "succeeded" },
-      2500,
+      2500
     );
     if (shouldLoseAck) {
       store.log(
         generationId,
         id,
         "provider.ack_lost",
-        "Confirmation de réception perdue",
+        "Confirmation de réception perdue"
       );
       throw new Error(
-        "Le fournisseur ne répond pas. L’acceptation est inconnue.",
+        "Le fournisseur ne répond pas. L’acceptation est inconnue."
       );
     }
     return id;
@@ -95,7 +98,7 @@ export function createProvider(store: Store) {
             status: "failed",
             error: job.error ?? "Échec fournisseur.",
           },
-      0,
+      0
     );
     return true;
   }
