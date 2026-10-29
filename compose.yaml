@@ -1,0 +1,31 @@
+services:
+  api:
+    build: .
+    command: pnpm dev:api
+    environment:
+      PORT: 3001
+      DATABASE_PATH: /app/data/studio.sqlite
+    volumes:
+      - ./src:/app/src
+      - studio-data:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  web:
+    build: .
+    command: pnpm dev:web
+    environment:
+      API_TARGET: http://api:3001
+    ports:
+      - "127.0.0.1:${APP_PORT:-4310}:5173"
+    volumes:
+      - ./src:/app/src
+      - ./index.html:/app/index.html
+      - ./vite.config.ts:/app/vite.config.ts
+    depends_on:
+      api:
+        condition: service_healthy
+volumes:
+  studio-data:
