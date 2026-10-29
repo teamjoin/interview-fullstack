@@ -6,7 +6,9 @@ Dans l’exercice, ce service distant est remplacé par un simulateur local : au
 
 ## Envoyer un travail
 
-`submit(generationId, requestId?)` accepte un travail en environ 600 ms puis renvoie son identifiant. Le résultat arrive environ 2,5 secondes plus tard via le callback enregistré par `onResult`.
+`submit(generationId, requestId?)` accepte un travail après un délai aléatoire de 400 à 1 600 ms puis renvoie son identifiant. Le résultat arrive après un second délai aléatoire indépendant de 1,5 à 4,5 secondes via le callback enregistré par `onResult`. Chaque appel tire son délai d’acceptation ; chaque nouveau traitement tire son délai d’exécution. L’ordre de fin n’est donc pas garanti par l’ordre d’envoi.
+
+Ces durées sont raccourcies pour l’entretien. Raisonnez comme pour un fournisseur externe asynchrone : la correction ne doit dépendre ni de ces bornes ni d’une attente fixe. Les contrôles de simulation restent disponibles pour reproduire un scénario précis sans compter sur le hasard.
 
 - `requestId` est facultatif. Lorsqu’il est fourni, il est aussi l’identifiant du traitement chez ce fournisseur.
 - Réutiliser le même identifiant avec la même génération retourne le traitement existant sans nouveau coût. Le réutiliser avec une autre génération est une erreur.

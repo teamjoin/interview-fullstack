@@ -28,7 +28,7 @@ Port occupé : `APP_PORT=4311 docker compose up --build`. Sous PowerShell : `$en
 
 L'application affiche des générations vidéo, leur état et un bouton de relance. Les outils de développement, en bas de page, permettent de remettre les données à zéro, simuler un échec du prochain traitement et renvoyer une notification fournisseur. L'historique montre les traitements acceptés et les événements.
 
-Chaque traitement accepté par le fournisseur représente un travail facturable, même s'il finit en échec. La simulation met environ 600 ms à accepter une demande puis 2,5 secondes à produire un résultat. La livraison des notifications peut être répétée et un ancien résultat peut arriver après un plus récent.
+Chaque traitement accepté par le fournisseur représente un travail facturable, même s'il finit en échec. La simulation utilise des délais aléatoires indépendants : de 400 à 1 600 ms pour accepter une demande, puis de 1,5 à 4,5 secondes pour produire son résultat. Ces durées sont raccourcies pour l’entretien ; elles ne constituent pas des garanties d’un service réel. L’ordre de fin peut différer de l’ordre d’envoi. La livraison des notifications peut être répétée et un ancien résultat peut arriver après un plus récent.
 
 Le contrat du fournisseur et les scénarios disponibles sont décrits dans [PROVIDER.md](PROVIDER.md).
 

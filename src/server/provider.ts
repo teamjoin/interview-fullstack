@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { randomInt, randomUUID } from "node:crypto";
 import { setTimeout as delay } from "node:timers/promises";
 import type { ProviderEvent } from "../shared/contracts";
 import type { Store } from "./store";
@@ -42,7 +42,7 @@ export function createProvider(store: Store) {
     const shouldLoseAck = loseNextAck;
     loseNextAck = false;
     failNext = false;
-    await delay(600);
+    await delay(randomInt(400, 1601));
     if (requestEpoch !== epoch) throw new Error("Simulation reset");
     const id = requestId;
     const existing = store.snapshot().jobs.find((job) => job.id === id);
@@ -64,7 +64,7 @@ export function createProvider(store: Store) {
             error: "Service de génération temporairement indisponible.",
           }
         : { generationId, jobId: id, status: "succeeded" },
-      2500
+      randomInt(1500, 4501)
     );
     if (shouldLoseAck) {
       store.log(
