@@ -83,7 +83,8 @@ export function App() {
             <span className="eyebrow">AI STUDIO / CRÉATION</span>
             <h1>Vos produits prennent vie.</h1>
             <p>
-              Retrouvez vos générations et reprenez celles qui en ont besoin.
+              Suivez vos vidéos confiées à RenderLab, notre fournisseur fictif
+              de génération vidéo, et relancez celles qui en ont besoin.
             </p>
           </div>
           <div className="avatar">AD</div>
@@ -128,8 +129,8 @@ export function App() {
                     {g.id === "gen-atelier"
                       ? "◒"
                       : g.id === "gen-horizon"
-                        ? "◉"
-                        : "◓"}
+                      ? "◉"
+                      : "◓"}
                   </div>
                   <span className="format">9:16 · 8 secondes</span>
                 </div>
@@ -145,8 +146,8 @@ export function App() {
                     {g.status === "failed"
                       ? g.error
                       : g.status === "running"
-                        ? "Votre vidéo est en préparation…"
-                        : "Votre vidéo est prête à être utilisée."}
+                      ? "Votre vidéo est en préparation…"
+                      : "Votre vidéo est prête à être utilisée."}
                   </div>
                   <button
                     disabled={g.status !== "failed"}
@@ -157,8 +158,8 @@ export function App() {
                     {g.status === "failed"
                       ? "Relancer la génération"
                       : g.status === "running"
-                        ? "Génération en cours…"
-                        : "Génération terminée"}
+                      ? "Génération en cours…"
+                      : "Génération terminée"}
                   </button>
                 </div>
               </article>
@@ -176,9 +177,10 @@ export function App() {
           {showTools && (
             <div>
               <p>
-                Le fournisseur est simulé. Les traitements acceptés sont
-                visibles ci-dessous ; chaque acceptation représente un travail
-                facturable.
+                RenderLab accepte les demandes de vidéo, exécute les traitements
+                puis notifie leur réussite ou leur échec. Dans cet exercice,
+                tout est simulé : aucune vidéo ni facture réelle. Chaque nouveau
+                traitement accepté représente un coût fictif, même s’il échoue.
               </p>
               <div className="toolbar">
                 <button
@@ -201,7 +203,7 @@ export function App() {
                   Perdre la prochaine confirmation
                 </button>
               </div>
-              <h3>Traitements fournisseur</h3>
+              <h3>Traitements RenderLab</h3>
               <div className="table-wrap">
                 <table>
                   <thead>
@@ -218,7 +220,7 @@ export function App() {
                         <td>
                           {
                             data.generations.find(
-                              (g) => g.id === j.generationId,
+                              (g) => g.id === j.generationId
                             )?.product
                           }
                         </td>
@@ -231,7 +233,7 @@ export function App() {
                             disabled={j.status === "running"}
                             onClick={() =>
                               void act(() =>
-                                post("/api/simulator/replay", { jobId: j.id }),
+                                post("/api/simulator/replay", { jobId: j.id })
                               )
                             }
                           >
@@ -262,7 +264,7 @@ export function App() {
         </section>
         <footer>
           JOIN · AI Video Creation{" "}
-          <span>Environnement d’entretien — fournisseur simulé</span>
+          <span>Environnement d’entretien — RenderLab simulé</span>
         </footer>
       </main>
     </div>

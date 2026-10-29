@@ -2,6 +2,12 @@
 
 Une petite application React / TypeScript / Node.js pour travailler ensemble sur un problème produit. Toutes les données sont fictives. Le fournisseur de génération vidéo est simulé : aucune clé d'API, aucun compte AWS et aucun coût d'IA ne sont nécessaires pour faire fonctionner l'application.
 
+## Contexte produit
+
+JOIN Studio permet à un marchand de suivre et relancer ses créations vidéo. La fabrication est confiée à **RenderLab, un fournisseur fictif** : il accepte une demande, lui attribue un identifiant de traitement, exécute le travail puis notifie sa réussite ou son échec. Une acceptation signifie que le travail est pris en charge, pas que la vidéo est déjà prête. Chaque nouveau traitement accepté représente un coût fictif, même si son exécution échoue.
+
+Studio porte l’expérience utilisateur, les règles de relance et l’état affiché. RenderLab porte l’acceptation et l’exécution du traitement, puis son résultat. Dans ce dépôt, les demandes sont réduites à un identifiant de génération : les médias, prompts et fichiers vidéo ne sont pas implémentés. Le fournisseur est simulé dans le processus de l’API avec des timers ; les lignes `jobs` représentent ses traitements. Il n’y a pas de file Bull/BullMQ ni de worker séparé dans le socle.
+
 ## Avant l'entretien
 
 Installez Docker Desktop ou un moteur compatible avec Docker Compose v2, ainsi que Git. Prévoyez votre éditeur et votre agent de développement habituel. La documentation et l'IA sont autorisées. Un accès de secours peut être organisé avec votre interlocuteur.
