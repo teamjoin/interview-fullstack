@@ -32,6 +32,8 @@ Chaque traitement accepté par le fournisseur représente un travail facturable,
 
 Le contrat du fournisseur et les scénarios disponibles sont décrits dans [PROVIDER.md](PROVIDER.md).
 
+Les outils commencent à l’étape **Corriger les relances**. Le bouton **Suivant : confirmation perdue** affiche un contrôle supplémentaire pour la discussion avec l’interviewer, sans déclencher le scénario. **Réinitialiser la démo** remet les données et l’étape à zéro.
+
 Le problème produit sera présenté au début de la session. Vous pouvez poser les questions que vous poseriez au Product ou à un collègue. Nous nous intéressons à votre démarche, vos décisions et vos vérifications. La finition graphique n'est pas évaluée.
 
 ## Se repérer

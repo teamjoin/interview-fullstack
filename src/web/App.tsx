@@ -17,6 +17,7 @@ export function App() {
   });
   const [error, setError] = useState("");
   const [showTools, setShowTools] = useState(false);
+  const [showDiscussion, setShowDiscussion] = useState(false);
   const refresh = useCallback(async () => {
     const response = await fetch("/api/studio");
     if (!response.ok) throw new Error("Impossible de charger le studio.");
@@ -193,10 +194,20 @@ export function App() {
                 même s’il échoue. Les clips de démonstration sont déjà inclus
                 dans l’application ; aucun service externe ni paiement réel.
               </p>
+              <p role="status">
+                {showDiscussion
+                  ? "Étape 2 · Discussion — confirmation perdue"
+                  : "Étape 1 · Corriger les relances"}
+              </p>
               <div className="toolbar">
                 <Button
                   size="sm"
-                  onClick={() => void act(() => post("/api/simulator/reset"))}
+                  onClick={() =>
+                    void act(async () => {
+                      await post("/api/simulator/reset");
+                      setShowDiscussion(false);
+                    })
+                  }
                 >
                   <Icon name="retry" />
                   Réinitialiser la démo
@@ -209,15 +220,31 @@ export function App() {
                 >
                   Faire échouer le prochain traitement
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={() =>
-                    void act(() => post("/api/simulator/lose-next-ack"))
-                  }
-                >
-                  Perdre la prochaine confirmation
-                </Button>
+                {showDiscussion ? (
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      void act(() => post("/api/simulator/lose-next-ack"))
+                    }
+                  >
+                    Perdre la prochaine confirmation
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => setShowDiscussion(true)}
+                  >
+                    Suivant : confirmation perdue
+                    <Icon name="arrow" />
+                  </Button>
+                )}
               </div>
+              <p className="hint">
+                {showDiscussion
+                  ? "Le scénario est disponible. Activez-le au moment de la discussion avec l’interviewer."
+                  : "Passez à la suite avec l’interviewer une fois la pratique terminée. Ce bouton affiche le scénario suivant sans modifier les traitements."}
+              </p>
               <h3>Traitements RenderLab</h3>
               <div className="table-wrap">
                 <table>

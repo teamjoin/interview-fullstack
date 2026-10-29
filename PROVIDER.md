@@ -27,6 +27,8 @@ Chaque résultat contient `generationId`, `jobId` et `status` ; un échec contie
 - **Perdre la prochaine confirmation** : le travail est accepté et se poursuit, mais l’appel `submit` lève une erreur de transport. La notification finale arrive tout de même.
 - **Renvoyer le résultat** : rejoue une notification d’un traitement terminé.
 
+Le contrôle « Perdre la prochaine confirmation » apparaît après **Suivant : confirmation perdue**, au début de la discussion avec l’interviewer. Passer à cette étape ne déclenche aucune erreur et ne modifie aucun traitement : il faut ensuite activer le scénario. Réinitialiser la démo revient à la première étape et annule les scénarios armés. L’étape affichée est locale à l’onglet et revient également au début lors d’un rechargement ; un rechargement seul n’annule pas un scénario déjà armé côté serveur.
+
 Les commandes « prochain… » s’appliquent au prochain appel envoyé au simulateur et sont annulées par une réinitialisation. N’activez qu’un scénario à la fois pendant une démonstration.
 
 ## Limites
