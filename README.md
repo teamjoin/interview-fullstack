@@ -16,7 +16,7 @@ docker compose up --build
 
 Ouvrez **http://localhost:4310**. Le premier démarrage télécharge les dépendances ; faites-le avant le rendez-vous. Le code `src/` est monté dans Docker : vos modifications sont rechargées automatiquement.
 
-Port occupé : `APP_PORT=4311 docker compose up --build`. Sous PowerShell : `$env:APP_PORT=4311; docker compose up --build`.
+Port occupé : `APP_PORT=4311 docker compose up --build`. Sous PowerShell : `$env:APP_PORT=4311; docker compose up --build`. Ouvrez alors http://localhost:4311 : le terminal affiche ce même port. Le serveur s’arrête si le port choisi est occupé, sans en sélectionner un autre automatiquement.
 
 ## Pendant l'exercice
 
@@ -60,7 +60,7 @@ docker compose down
 
 Pour repartir des données fictives initiales, utilisez **Outils de développement → Réinitialiser la démo**. Cela supprime seulement les données locales de cet exercice.
 
-Sans Docker : Node 24.15+ et pnpm 12.4.1, puis `pnpm install --frozen-lockfile`, `pnpm dev:api` et `pnpm dev:web` dans deux terminaux. Ouvrez alors http://localhost:5173.
+Sans Docker : Node 24.15+ et pnpm 12.4.1, puis `pnpm install --frozen-lockfile`, `pnpm dev:api` et `pnpm dev:web` dans deux terminaux. Ouvrez également http://localhost:4310. Pour changer le port : `APP_PORT=4311 pnpm dev:web` (sous PowerShell, définir `$env:APP_PORT=4311` avant de lancer la commande).
 
 ## Cadre
 

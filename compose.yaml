@@ -24,8 +24,9 @@ services:
     command: pnpm dev:web
     environment:
       API_TARGET: http://api:3001
+      APP_PORT: ${APP_PORT:-4310}
     ports:
-      - "127.0.0.1:${APP_PORT:-4310}:5173"
+      - "127.0.0.1:${APP_PORT:-4310}:${APP_PORT:-4310}"
     volumes:
       - ./src:/app/src
       - ./index.html:/app/index.html
