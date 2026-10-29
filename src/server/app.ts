@@ -29,6 +29,10 @@ export function createApp(databasePath: string) {
     provider.failNext();
     res.json({ ok: true });
   });
+  app.post("/api/simulator/lose-next-ack", (_req, res) => {
+    provider.loseNextAck();
+    res.json({ ok: true });
+  });
   app.post("/api/simulator/replay", (req, res) => {
     const { jobId } = z.object({ jobId: z.string() }).parse(req.body);
     if (!provider.replay(jobId))

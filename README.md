@@ -24,6 +24,8 @@ L'application affiche des générations vidéo, leur état et un bouton de relan
 
 Chaque traitement accepté par le fournisseur représente un travail facturable, même s'il finit en échec. La simulation met environ 600 ms à accepter une demande puis 2,5 secondes à produire un résultat. La livraison des notifications peut être répétée et un ancien résultat peut arriver après un plus récent.
 
+Le contrat du fournisseur et les scénarios disponibles sont décrits dans [PROVIDER.md](PROVIDER.md).
+
 Le problème produit sera présenté au début de la session. Vous pouvez poser les questions que vous poseriez au Product ou à un collègue. Nous nous intéressons à votre démarche, vos décisions et vos vérifications. La finition graphique n'est pas évaluée.
 
 ## Se repérer

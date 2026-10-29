@@ -297,6 +297,7 @@ h3 {
   color: #777;
 }
 .toolbar {
+  flex-wrap: wrap;
   display: flex;
   gap: 10px;
   margin: 15px 0 25px;
@@ -424,6 +425,7 @@ footer {
     gap: 15px;
   }
   .toolbar {
+    flex-wrap: wrap;
     flex-wrap: wrap;
   }
 }

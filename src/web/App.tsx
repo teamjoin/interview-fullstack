@@ -193,6 +193,13 @@ export function App() {
                 >
                   Faire échouer le prochain traitement
                 </button>
+                <button
+                  onClick={() =>
+                    void act(() => post("/api/simulator/lose-next-ack"))
+                  }
+                >
+                  Perdre la prochaine confirmation
+                </button>
               </div>
               <h3>Traitements fournisseur</h3>
               <div className="table-wrap">

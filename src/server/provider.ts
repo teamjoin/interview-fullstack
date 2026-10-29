@@ -7,6 +7,7 @@ export function createProvider(store: Store) {
   const timers = new Set<ReturnType<typeof setTimeout>>();
   let epoch = 0;
   let failNext = false;
+  let loseNextAck = false;
   let callback: (event: ProviderEvent) => void = () => {};
   function schedule(event: ProviderEvent, ms: number) {
     const timer = setTimeout(() => {
@@ -32,13 +33,21 @@ export function createProvider(store: Store) {
     }, ms);
     timers.add(timer);
   }
-  async function submit(generationId: string) {
+  async function submit(generationId: string, requestId = randomUUID()) {
     const requestEpoch = epoch;
     const shouldFail = failNext;
+    const shouldLoseAck = loseNextAck;
+    loseNextAck = false;
     failNext = false;
     await delay(600);
     if (requestEpoch !== epoch) throw new Error("Simulation reset");
-    const id = randomUUID();
+    const id = requestId;
+    const existing = store.snapshot().jobs.find((job) => job.id === id);
+    if (existing) {
+      if (existing.generationId !== generationId)
+        throw new Error("Request ID already used for a different generation");
+      return id;
+    }
     store.db
       .prepare("INSERT INTO jobs VALUES (?, ?, ?, ?, ?)")
       .run(id, generationId, "running", Date.now(), null);
@@ -54,6 +63,17 @@ export function createProvider(store: Store) {
         : { generationId, jobId: id, status: "succeeded" },
       2500,
     );
+    if (shouldLoseAck) {
+      store.log(
+        generationId,
+        id,
+        "provider.ack_lost",
+        "Confirmation de réception perdue",
+      );
+      throw new Error(
+        "Le fournisseur ne répond pas. L’acceptation est inconnue.",
+      );
+    }
     return id;
   }
   function reset() {
@@ -61,6 +81,7 @@ export function createProvider(store: Store) {
     for (const timer of timers) clearTimeout(timer);
     timers.clear();
     failNext = false;
+    loseNextAck = false;
   }
   function replay(jobId: string) {
     const job = store.snapshot().jobs.find((item) => item.id === jobId);
@@ -84,6 +105,9 @@ export function createProvider(store: Store) {
     replay,
     onResult(listener: (event: ProviderEvent) => void) {
       callback = listener;
+    },
+    loseNextAck() {
+      loseNextAck = true;
     },
     failNext() {
       failNext = true;
