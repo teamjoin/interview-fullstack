@@ -16,7 +16,6 @@ export function App() {
     events: [],
   });
   const [error, setError] = useState("");
-  const [showTools, setShowTools] = useState(false);
   const [showDiscussion, setShowDiscussion] = useState(false);
   const refresh = useCallback(async () => {
     const response = await fetch("/api/studio");
@@ -63,267 +62,170 @@ export function App() {
     }
   }
   return (
-    <div className="shell">
-      <aside className="sidebar">
-        <a className="logo" href="/" aria-label="JOIN Studio">
-          JOIN<span>●</span>
-        </a>
-        <div className="workspace">
-          <span className="workspace-mark">a.</span>Atelier Demo
-          <Icon name="chevron" />
+    <main className="studio-main">
+      <header className="studio-header">
+        <div>
+          <span className="eyebrow">JOIN · AI VIDEO CREATION</span>
+          <h1>Générations vidéo</h1>
+          <p>RenderLab accepte les demandes, puis envoie leur résultat.</p>
         </div>
-        <p className="nav-label">VOTRE ESPACE</p>
-        <nav aria-label="Produits JOIN">
+        <span className="simulation-label">
+          Simulation locale · échecs initiaux volontaires
+        </span>
+      </header>
+      {error && (
+        <Notice tone="danger" announce>
+          {error}
+        </Notice>
+      )}
+      <section aria-labelledby="generations-title">
+        <div className="section-heading">
+          <h2 id="generations-title">Vidéos</h2>
           <span>
-            <Icon name="grid" />
-            Vue d’ensemble
+            <span className="live-dot" />
+            Actualisation automatique
           </span>
-          <span>
-            <Icon name="layers" />
-            Stories
-          </span>
-          <span>
-            <Icon name="bag" />
-            Shopping Agent
-          </span>
-          <strong aria-current="page">
-            <Icon name="sparkles" />
-            AI Video Creation
-          </strong>
-          <span>
-            <Icon name="film" />
-            Médiathèque
-          </span>
-        </nav>
-        <div className="aside-bottom">
-          <a href="/design-system">
-            <Icon name="grid" />
-            Design system
-            <Icon name="arrow" />
-          </a>
-          <div className="demo-note">
-            <strong>Un espace pour expérimenter.</strong>Données fictives, aucun
-            coût réel.
-          </div>
         </div>
-      </aside>
-      <main className="studio-main">
-        <header className="studio-header">
-          <div>
-            <span className="eyebrow">
-              <Icon name="sparkles" />
-              AI VIDEO CREATION
-            </span>
-            <h1>Vos produits prennent vie.</h1>
-            <p>
-              Du produit à l’histoire. Retrouvez vos créations vidéo et donnez
-              une nouvelle chance à celles qui en ont besoin.
-            </p>
-          </div>
-          <div className="avatar" aria-label="Atelier Demo">
-            AD
-          </div>
-        </header>
-        <section className="summary" aria-label="Résumé des générations">
-          <div>
-            <b>{data.generations.length}</b>
-            <span>produits</span>
-          </div>
-          <div>
-            <b>
-              {data.generations.filter((g) => g.status === "succeeded").length}
-            </b>
-            <span>vidéos prêtes</span>
-          </div>
-          <div>
-            <b>
-              {data.generations.filter((g) => g.status === "failed").length}
-            </b>
-            <span>à reprendre</span>
-          </div>
-          <p>
-            <Icon name="sparkles" />
-            Collection d’automne · 2026
-          </p>
-        </section>
-        {error && (
-          <Notice tone="danger" announce>
-            {error}
-          </Notice>
-        )}
-        <section aria-labelledby="generations-title">
-          <div className="section-heading">
-            <h2 id="generations-title">Générations récentes</h2>
-            <span>
-              <span className="live-dot" />
-              Actualisation automatique
-            </span>
-          </div>
-          <div className="cards">
-            {data.generations.map((g) => (
-              <GenerationCard
-                key={g.id}
-                generation={g}
-                onRetry={() =>
-                  void act(() => post(`/api/generations/${g.id}/retry`))
-                }
-              />
+        <div className="cards">
+          {data.generations.map((g) => (
+            <GenerationCard
+              key={g.id}
+              generation={g}
+              onRetry={() =>
+                void act(() => post(`/api/generations/${g.id}/retry`))
+              }
+            />
+          ))}
+        </div>
+      </section>
+      <section className="tools" aria-labelledby="tools-title">
+        <div className="section-heading">
+          <h2 id="tools-title">Scénarios</h2>
+          <span role="status">
+            {showDiscussion
+              ? "Étape 2 · Confirmation perdue"
+              : "Étape 1 · Corriger les relances"}
+          </span>
+        </div>
+        <div className="toolbar">
+          <Button
+            size="sm"
+            onClick={() =>
+              void act(async () => {
+                await post("/api/simulator/reset");
+                setShowDiscussion(false);
+              })
+            }
+          >
+            <Icon name="retry" />
+            Réinitialiser la démo
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => void act(() => post("/api/simulator/fail-next"))}
+          >
+            Faire échouer le prochain traitement
+          </Button>
+          {showDiscussion ? (
+            <Button
+              size="sm"
+              onClick={() =>
+                void act(() => post("/api/simulator/lose-next-ack"))
+              }
+            >
+              Perdre la prochaine confirmation
+            </Button>
+          ) : (
+            <Button size="sm" onClick={() => setShowDiscussion(true)}>
+              Suivant : confirmation perdue
+              <Icon name="arrow" />
+            </Button>
+          )}
+        </div>
+        <p className="hint">
+          {showDiscussion
+            ? "Activez le scénario avec l’interviewer. Passer à cette étape ne déclenche aucune panne."
+            : "La confirmation perdue sera abordée avec l’interviewer après la pratique."}
+        </p>
+      </section>
+      <section className="history" aria-labelledby="history-title">
+        <div className="section-heading">
+          <h2 id="history-title">
+            Traitements RenderLab{" "}
+            <span className="job-count">{data.jobs.length}</span>
+          </h2>
+          <span>Chaque traitement accepté représente un coût fictif.</span>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Traitement</th>
+                <th>Résultat</th>
+                <th>Notification</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.jobs.map((j) => (
+                <tr key={j.id}>
+                  <td>
+                    {
+                      data.generations.find((g) => g.id === j.generationId)
+                        ?.product
+                    }
+                  </td>
+                  <td>
+                    <code>{j.id}</code>
+                  </td>
+                  <td>
+                    <Badge
+                      tone={
+                        j.status === "failed"
+                          ? "danger"
+                          : j.status === "running"
+                          ? "warning"
+                          : "success"
+                      }
+                    >
+                      {labels[j.status]}
+                    </Badge>
+                  </td>
+                  <td>
+                    <Button
+                      size="sm"
+                      disabled={j.status === "running"}
+                      onClick={() =>
+                        void act(() =>
+                          post("/api/simulator/replay", { jobId: j.id })
+                        )
+                      }
+                    >
+                      Renvoyer le résultat
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <details open>
+          <summary>Journal des événements</summary>
+          <div className="events">
+            {data.events.map((e) => (
+              <p key={e.id}>
+                <time>{new Date(e.createdAt).toLocaleTimeString("fr-FR")}</time>{" "}
+                <code>{e.type}</code> · {e.detail}
+                <small>{e.jobId}</small>
+              </p>
             ))}
           </div>
-        </section>
-        <section className="tools">
-          <Button
-            variant="ghost"
-            className="tools-toggle"
-            onClick={() => setShowTools(!showTools)}
-            aria-expanded={showTools}
-            aria-controls="simulation-tools"
-          >
-            <span>
-              <Icon name="code" />
-              Outils de développement
-            </span>
-            <span aria-hidden="true">{showTools ? "−" : "+"}</span>
-          </Button>
-          {showTools && (
-            <div className="tools-content" id="simulation-tools">
-              <p>
-                <strong>RenderLab, fournisseur fictif.</strong> Il accepte les
-                demandes, effectue le traitement puis notifie leur résultat.
-                Chaque nouveau traitement accepté représente un coût fictif,
-                même s’il échoue. Les clips de démonstration sont déjà inclus
-                dans l’application ; aucun service externe ni paiement réel.
-              </p>
-              <p role="status">
-                {showDiscussion
-                  ? "Étape 2 · Discussion — confirmation perdue"
-                  : "Étape 1 · Corriger les relances"}
-              </p>
-              <div className="toolbar">
-                <Button
-                  size="sm"
-                  onClick={() =>
-                    void act(async () => {
-                      await post("/api/simulator/reset");
-                      setShowDiscussion(false);
-                    })
-                  }
-                >
-                  <Icon name="retry" />
-                  Réinitialiser la démo
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() =>
-                    void act(() => post("/api/simulator/fail-next"))
-                  }
-                >
-                  Faire échouer le prochain traitement
-                </Button>
-                {showDiscussion ? (
-                  <Button
-                    size="sm"
-                    onClick={() =>
-                      void act(() => post("/api/simulator/lose-next-ack"))
-                    }
-                  >
-                    Perdre la prochaine confirmation
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    onClick={() => setShowDiscussion(true)}
-                  >
-                    Suivant : confirmation perdue
-                    <Icon name="arrow" />
-                  </Button>
-                )}
-              </div>
-              <p className="hint">
-                {showDiscussion
-                  ? "Le scénario est disponible. Activez-le au moment de la discussion avec l’interviewer."
-                  : "Passez à la suite avec l’interviewer une fois la pratique terminée. Ce bouton affiche le scénario suivant sans modifier les traitements."}
-              </p>
-              <h3>Traitements RenderLab</h3>
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Produit</th>
-                      <th>Traitement</th>
-                      <th>Résultat</th>
-                      <th>Notification</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.jobs.map((j) => (
-                      <tr key={j.id}>
-                        <td>
-                          {
-                            data.generations.find(
-                              (g) => g.id === j.generationId
-                            )?.product
-                          }
-                        </td>
-                        <td>
-                          <code>{j.id}</code>
-                        </td>
-                        <td>
-                          <Badge
-                            tone={
-                              j.status === "failed"
-                                ? "danger"
-                                : j.status === "running"
-                                ? "warning"
-                                : "success"
-                            }
-                          >
-                            {labels[j.status]}
-                          </Badge>
-                        </td>
-                        <td>
-                          <Button
-                            size="sm"
-                            disabled={j.status === "running"}
-                            onClick={() =>
-                              void act(() =>
-                                post("/api/simulator/replay", { jobId: j.id })
-                              )
-                            }
-                          >
-                            Renvoyer le résultat
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <details>
-                <summary>Journal des événements</summary>
-                <div className="events">
-                  {data.events.map((e) => (
-                    <p key={e.id}>
-                      <time>
-                        {new Date(e.createdAt).toLocaleTimeString("fr-FR")}
-                      </time>{" "}
-                      <code>{e.type}</code> · {e.detail}
-                      <small>{e.jobId}</small>
-                    </p>
-                  ))}
-                </div>
-              </details>
-            </div>
-          )}
-        </section>
-        <footer className="studio-footer">
-          <span>JOIN · Créations par RenderLab, fournisseur fictif.</span>
-          <span>
-            Clips de démonstration · <a href="/design-system">Design system</a>
-          </span>
-        </footer>
-      </main>
-    </div>
+        </details>
+      </section>
+      <footer className="studio-footer">
+        <span>Données et clips de démonstration · aucun coût réel.</span>
+        <a href="/design-system">Design system</a>
+      </footer>
+    </main>
   );
 }

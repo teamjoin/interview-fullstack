@@ -26,13 +26,13 @@ Port occupé : `APP_PORT=4311 docker compose up --build`. Sous PowerShell : `$en
 
 ## Pendant l'exercice
 
-L'application affiche des générations vidéo, leur état et un bouton de relance. Les outils de développement, en bas de page, permettent de remettre les données à zéro, simuler un échec du prochain traitement et renvoyer une notification fournisseur. L'historique montre les traitements acceptés et les événements.
+L'application affiche les vidéos, leur état et un bouton de relance. Les échecs initiaux sont volontaires : l’exercice porte sur la gestion des relances et des résultats, pas sur un moteur de génération vidéo. Le panneau **Scénarios**, sous les vidéos, permet de remettre les données à zéro, simuler un échec du prochain traitement et renvoyer une notification fournisseur. Les traitements RenderLab et le journal des événements sont directement visibles sous les scénarios. Chaque ligne représente un traitement accepté par le fournisseur.
 
 Chaque traitement accepté par le fournisseur représente un travail facturable, même s'il finit en échec. La simulation utilise des délais aléatoires indépendants : de 400 à 1 600 ms pour accepter une demande, puis de 1,5 à 4,5 secondes pour produire son résultat. Ces durées sont raccourcies pour l’entretien ; elles ne constituent pas des garanties d’un service réel. L’ordre de fin peut différer de l’ordre d’envoi. La livraison des notifications peut être répétée et un ancien résultat peut arriver après un plus récent.
 
 Le contrat du fournisseur et les scénarios disponibles sont décrits dans [PROVIDER.md](PROVIDER.md).
 
-Les outils commencent à l’étape **Corriger les relances**. Le bouton **Suivant : confirmation perdue** affiche un contrôle supplémentaire pour la discussion avec l’interviewer, sans déclencher le scénario. **Réinitialiser la démo** remet les données et l’étape à zéro.
+Les scénarios commencent à l’étape **Corriger les relances**. Le bouton **Suivant : confirmation perdue** affiche un contrôle supplémentaire pour la discussion avec l’interviewer, sans déclencher le scénario. **Réinitialiser la démo** remet les données et l’étape à zéro.
 
 Le problème produit sera présenté au début de la session. Vous pouvez poser les questions que vous poseriez au Product ou à un collègue. Nous nous intéressons à votre démarche, vos décisions et vos vérifications. La finition graphique n'est pas évaluée.
 
@@ -68,7 +68,7 @@ docker compose logs -f api
 docker compose down
 ```
 
-Pour repartir des données fictives initiales, utilisez **Outils de développement → Réinitialiser la démo**. Cela supprime seulement les données locales de cet exercice.
+Pour repartir des données fictives initiales, utilisez **Scénarios → Réinitialiser la démo**. Cela supprime seulement les données locales de cet exercice.
 
 Sans Docker : Node 24.15+ et pnpm 12.4.1, puis `pnpm install --frozen-lockfile`, `pnpm dev:api` et `pnpm dev:web` dans deux terminaux. Ouvrez également http://localhost:4310. Pour changer le port : `APP_PORT=4311 pnpm dev:web` (sous PowerShell, définir `$env:APP_PORT=4311` avant de lancer la commande).
 
