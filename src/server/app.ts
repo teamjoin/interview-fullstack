@@ -4,6 +4,7 @@ import { openStore } from "./store";
 import { createRenderLabClient } from "./RenderLab/client";
 import { registerRenderLabRoutes } from "./RenderLab/routes";
 import { createGenerationService, RequestError } from "./generations";
+import { batchRetrySchema, createBatchService } from "./batches";
 
 export function createApp(
   databasePath: string,
@@ -12,6 +13,7 @@ export function createApp(
   const store = openStore(databasePath);
   const provider = createRenderLabClient(renderLabUrl);
   const service = createGenerationService(store, provider);
+  const batches = createBatchService(service);
   const app = express();
   app.use(express.json());
   app.get("/api/health", (_req, res) => {
@@ -31,6 +33,10 @@ export function createApp(
   app.post("/api/generations/:id/retry", async (req, res) => {
     const id = z.string().parse(req.params.id);
     res.status(202).json(await service.retry(id));
+  });
+  app.post("/api/generation-batches/retry", async (req, res) => {
+    const input = batchRetrySchema.parse(req.body);
+    res.status(202).json(await batches.retry(input));
   });
   registerRenderLabRoutes(app, {
     client: provider,
