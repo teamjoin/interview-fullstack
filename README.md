@@ -6,7 +6,7 @@ Une petite application React / TypeScript / Node.js pour travailler ensemble sur
 
 JOIN Studio permet à un marchand de suivre et relancer ses créations vidéo. La fabrication est confiée à **RenderLab, un fournisseur fictif** : il accepte une demande, lui attribue un identifiant de traitement, exécute le travail puis notifie sa réussite ou son échec. Une acceptation signifie que le travail est pris en charge, pas que la vidéo est déjà prête. Chaque nouveau traitement accepté représente un coût fictif, même si son exécution échoue.
 
-Studio porte l’expérience utilisateur, les règles de relance et l’état affiché. RenderLab porte l’acceptation et l’exécution du traitement, puis son résultat. Dans ce dépôt, les demandes sont réduites à un identifiant de génération : aucun média ni prompt n’est envoyé au fournisseur. Trois clips de démonstration de 8 secondes sont fournis dans `public/media/` et deviennent lisibles quand leur carte est prête ; ils ne sont pas générés à chaque relance. Le fournisseur est simulé dans le processus de l’API avec des timers ; les lignes `jobs` représentent ses traitements. Il n’y a pas de file Bull/BullMQ ni de worker séparé dans le socle.
+Studio porte l’expérience utilisateur, les règles de relance et l’état affiché. RenderLab porte l’acceptation et l’exécution du traitement, puis son résultat. Dans ce dépôt, les demandes sont réduites à un identifiant de génération : aucun média ni prompt n’est envoyé au fournisseur. Trois clips de démonstration de 8 secondes sont fournis dans `public/media/` et deviennent lisibles quand leur carte est prête ; ils ne sont pas générés à chaque relance. RenderLab tourne dans son propre conteneur Docker. Studio lui envoie un POST HTTP et reçoit le résultat sur une route de notification. Ses traitements sont conservés chez RenderLab, séparément de la base Studio. Il n’y a pas de file Bull/BullMQ dans le socle.
 
 ## Avant l'entretien
 
@@ -43,11 +43,12 @@ Le problème produit sera présenté au début de la session. Vous pouvez poser 
 - `public/media/` : images et clips locaux de démonstration, sans téléchargement externe au démarrage.
 - `src/server/app.ts` : routes HTTP.
 - `src/server/generations.ts` : logique des générations.
-- `src/server/provider.ts` : simulateur du fournisseur.
+- `src/server/RenderLab/` : client HTTP, contrat des notifications et routes d’intégration.
+- `RenderLab/` : Dockerfile du service fournisseur, livré sous forme de binaire précompilé sans son code source.
 - `src/server/store.ts` : base SQLite persistante et données initiales.
 - `src/shared/contracts.ts` : contrats des échanges.
 
-La base SQLite est dans le volume Docker `studio-data`. Il s'agit d'un seul espace de démonstration : authentification, multi-tenant, facturation réelle et production sont hors périmètre. Les timers du simulateur ne survivent pas au redémarrage de l'API ; après un redémarrage pendant un traitement, réinitialisez la démo. Il n'est pas demandé de construire un système distribué.
+La base SQLite de Studio est dans le volume Docker `studio-data-v2`. Il s'agit d'un seul espace de démonstration : authentification, multi-tenant, facturation réelle et production sont hors périmètre. RenderLab continue à travailler lors d'un redémarrage de l'API Studio ; son propre redémarrage perd son état en mémoire. Après un redémarrage de RenderLab, réinitialisez la démo. Il n'est pas demandé de construire un système distribué.
 
 ## Commandes utiles
 
@@ -70,7 +71,7 @@ docker compose down
 
 Pour repartir des données fictives initiales, utilisez **Scénarios → Réinitialiser la démo**. Cela supprime seulement les données locales de cet exercice.
 
-Sans Docker : Node 24.15+ et pnpm 12.4.1, puis `pnpm install --frozen-lockfile`, `pnpm dev:api` et `pnpm dev:web` dans deux terminaux. Ouvrez également http://localhost:4310. Pour changer le port : `APP_PORT=4311 pnpm dev:web` (sous PowerShell, définir `$env:APP_PORT=4311` avant de lancer la commande).
+Le démarrage de référence utilise Docker Compose pour les trois services. Il télécharge automatiquement le binaire RenderLab adapté à Linux AMD64 ou ARM64, avec vérification de son SHA-256. Aucun Go à installer, aucun code fournisseur à cloner. Un accès Internet est nécessaire au premier build. Les commandes de tests ci-dessus s’exécutent avec la stack démarrée.
 
 ## Cadre
 

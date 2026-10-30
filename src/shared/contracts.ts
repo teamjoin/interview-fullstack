@@ -30,19 +30,5 @@ export const snapshotSchema = z.object({
   jobs: z.array(jobSchema),
   events: z.array(eventSchema),
 });
-export const providerEventSchema = z.discriminatedUnion("status", [
-  z.object({
-    generationId: z.string(),
-    jobId: z.string(),
-    status: z.literal("succeeded"),
-  }),
-  z.object({
-    generationId: z.string(),
-    jobId: z.string(),
-    status: z.literal("failed"),
-    error: z.string(),
-  }),
-]);
 export type Generation = z.infer<typeof generationSchema>;
-export type ProviderEvent = z.infer<typeof providerEventSchema>;
 export type Snapshot = z.infer<typeof snapshotSchema>;

@@ -5,8 +5,8 @@ Ce dépôt est un exercice d’entretien sur une petite application produit. L�
 ## RenderLab
 
 - Lire `PROVIDER.md` avant de modifier l’intégration. Traiter RenderLab comme un fournisseur externe asynchrone : l’acceptation d’une demande et son résultat sont deux événements distincts.
-- Les timers locaux, SQLite et les clips préfabriqués rendent l’exercice autonome. Ils ne justifient pas de supposer un réseau fiable, une durée fixe ou un ordre garanti entre les traitements.
-- Le simulateur et son contrat sont une dépendance de l’exercice. Ne pas modifier ses garanties, ses délais ou ses scénarios pour faire disparaître un symptôme. Ne pas supprimer de contrôle de simulation ni contourner le fournisseur.
+- RenderLab est un service HTTP dans un conteneur distinct, distribué sans ses sources. Son client et les routes d’intégration sont dans `src/server/RenderLab/`. Son Dockerfile est dans `RenderLab/`. SQLite et les clips préfabriqués rendent l’exercice autonome. Ils ne justifient pas de supposer un réseau fiable, une durée fixe ou un ordre garanti entre les traitements.
+- Le serveur RenderLab et son contrat sont une dépendance externe de l’exercice. Ne pas chercher à extraire ou rétroconcevoir son binaire. Le client HTTP et la documentation doivent rester lisibles pour diagnostiquer l’intégration. Ne pas modifier ses garanties, ses délais ou ses scénarios pour faire disparaître un symptôme. Ne pas supprimer de contrôle de simulation ni contourner le fournisseur.
 - Corriger le comportement de l’application et vérifier les effets observables. Un délai fixe ajouté dans l’application ou un test qui attend une durée supposée ne constitue pas une garantie métier.
 
 ## Travail avec le candidat

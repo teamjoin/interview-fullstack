@@ -1,50 +1,48 @@
 import express from "express";
 import { z } from "zod";
 import { openStore } from "./store";
-import { createProvider } from "./provider";
+import { createRenderLabClient } from "./RenderLab/client";
+import { registerRenderLabRoutes } from "./RenderLab/routes";
 import { createGenerationService, RequestError } from "./generations";
 
-export function createApp(databasePath: string) {
+export function createApp(
+  databasePath: string,
+  renderLabUrl = process.env.RENDERLAB_URL ?? "http://renderlab:8080"
+) {
   const store = openStore(databasePath);
-  const provider = createProvider(store);
+  const provider = createRenderLabClient(renderLabUrl);
   const service = createGenerationService(store, provider);
   const app = express();
   app.use(express.json());
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
   });
-  app.get("/api/studio", (_req, res) => {
-    res.json(store.snapshot());
+  app.get("/api/studio", async (_req, res) => {
+    const local = store.snapshot();
+    const remote = await provider.snapshot();
+    res.json({
+      generations: local.generations,
+      jobs: remote.jobs,
+      events: [...local.events, ...remote.events]
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 100),
+    });
   });
   app.post("/api/generations/:id/retry", async (req, res) => {
     const id = z.string().parse(req.params.id);
     res.status(202).json(await service.retry(id));
   });
-  app.post("/api/simulator/reset", (_req, res) => {
-    provider.reset();
-    store.reset();
-    res.json(store.snapshot());
-  });
-  app.post("/api/simulator/fail-next", (_req, res) => {
-    provider.failNext();
-    res.json({ ok: true });
-  });
-  app.post("/api/simulator/lose-next-ack", (_req, res) => {
-    provider.loseNextAck();
-    res.json({ ok: true });
-  });
-  app.post("/api/simulator/replay", (req, res) => {
-    const { jobId } = z.object({ jobId: z.string() }).parse(req.body);
-    if (!provider.replay(jobId))
-      throw new RequestError(404, "Résultat fournisseur introuvable.");
-    res.json({ ok: true });
+  registerRenderLabRoutes(app, {
+    client: provider,
+    receive: service.receive,
+    resetStudio: store.reset,
   });
   app.use(
     (
       error: unknown,
       _req: express.Request,
       res: express.Response,
-      _next: express.NextFunction,
+      _next: express.NextFunction
     ) => {
       if (error instanceof RequestError) {
         res.status(error.status).json({ message: error.message });
@@ -56,13 +54,12 @@ export function createApp(databasePath: string) {
       }
       process.stderr.write(`${String(error)}\n`);
       res.status(500).json({ message: "Une erreur est survenue." });
-    },
+    }
   );
   return {
     app,
     store,
     close() {
-      provider.reset();
       store.db.close();
     },
   };

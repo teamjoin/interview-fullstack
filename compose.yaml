@@ -1,13 +1,26 @@
 services:
+  renderlab:
+    build: ./RenderLab
+    environment:
+      STUDIO_CALLBACK_URL: http://api:3001/api/providers/renderlab/results
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: ["CMD", "/renderlab", "health"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
   api:
     build: .
     command: pnpm dev:api
     environment:
       PORT: 3001
+      RENDERLAB_URL: http://renderlab:8080
       DATABASE_PATH: /app/data/studio.sqlite
     volumes:
       - ./src:/app/src
-      - studio-data:/app/data
+      - studio-data-v2:/app/data
     healthcheck:
       test:
         [
@@ -19,6 +32,9 @@ services:
       interval: 2s
       timeout: 2s
       retries: 30
+    depends_on:
+      renderlab:
+        condition: service_healthy
   web:
     build: .
     command: pnpm dev:web
@@ -36,4 +52,4 @@ services:
       api:
         condition: service_healthy
 volumes:
-  studio-data:
+  studio-data-v2:

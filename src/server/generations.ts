@@ -1,29 +1,29 @@
-import type { ProviderEvent } from "../shared/contracts";
-import type { Provider } from "./provider";
+import type { ProviderEvent } from "./RenderLab/contracts";
+import type { RenderLabClient } from "./RenderLab/client";
 import type { Store } from "./store";
 
 export class RequestError extends Error {
-  constructor(
-    readonly status: number,
-    message: string,
-  ) {
+  constructor(readonly status: number, message: string) {
     super(message);
   }
 }
 
-export function createGenerationService(store: Store, provider: Provider) {
+export function createGenerationService(
+  store: Store,
+  provider: RenderLabClient
+) {
   async function retry(id: string) {
     const generation = store.getGeneration(id);
     if (!generation) throw new RequestError(404, "Génération introuvable.");
     if (generation.status !== "failed")
       throw new RequestError(
         409,
-        "Cette génération ne peut pas être relancée.",
+        "Cette génération ne peut pas être relancée."
       );
     const jobId = await provider.submit(id);
     store.db
       .prepare(
-        "UPDATE generations SET status = 'running', currentJobId = ?, error = NULL, updatedAt = ? WHERE id = ?",
+        "UPDATE generations SET status = 'running', currentJobId = ?, error = NULL, updatedAt = ? WHERE id = ?"
       )
       .run(jobId, Date.now(), id);
     store.log(id, jobId, "generation.retry", "Relance demandée");
@@ -32,21 +32,20 @@ export function createGenerationService(store: Store, provider: Provider) {
   function receive(event: ProviderEvent) {
     store.db
       .prepare(
-        "UPDATE generations SET status = ?, error = ?, updatedAt = ? WHERE id = ?",
+        "UPDATE generations SET status = ?, error = ?, updatedAt = ? WHERE id = ?"
       )
       .run(
         event.status,
         event.status === "failed" ? event.error : null,
         Date.now(),
-        event.generationId,
+        event.generationId
       );
     store.log(
       event.generationId,
       event.jobId,
       "generation.updated",
-      event.status,
+      event.status
     );
   }
-  provider.onResult(receive);
   return { retry, receive };
 }

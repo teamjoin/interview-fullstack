@@ -1,7 +1,8 @@
+import { z } from "zod";
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import { generationSchema, snapshotSchema } from "../shared/contracts";
+import { generationSchema, eventSchema } from "../shared/contracts";
 
 export function openStore(path: string) {
   if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true });
@@ -11,10 +12,6 @@ export function openStore(path: string) {
     CREATE TABLE IF NOT EXISTS generations (
       id TEXT PRIMARY KEY, product TEXT NOT NULL, color TEXT NOT NULL,
       status TEXT NOT NULL, currentJobId TEXT, error TEXT, updatedAt INTEGER NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS jobs (
-      id TEXT PRIMARY KEY, generationId TEXT NOT NULL, status TEXT NOT NULL,
-      createdAt INTEGER NOT NULL, error TEXT
     );
     CREATE TABLE IF NOT EXISTS events (
       id INTEGER PRIMARY KEY AUTOINCREMENT, generationId TEXT NOT NULL,
@@ -29,23 +26,26 @@ export function openStore(path: string) {
     generationId: string,
     jobId: string,
     type: string,
-    detail: string,
+    detail: string
   ) {
     db.prepare(
-      "INSERT INTO events (generationId, jobId, type, detail, createdAt) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO events (generationId, jobId, type, detail, createdAt) VALUES (?, ?, ?, ?, ?)"
     ).run(generationId, jobId, type, detail, Date.now());
   }
   function snapshot() {
-    return snapshotSchema.parse({
-      generations: db.prepare("SELECT * FROM generations ORDER BY id").all(),
-      jobs: db.prepare("SELECT * FROM jobs ORDER BY createdAt DESC, id").all(),
-      events: db
-        .prepare("SELECT * FROM events ORDER BY id DESC LIMIT 100")
-        .all(),
-    });
+    return {
+      generations: z
+        .array(generationSchema)
+        .parse(db.prepare("SELECT * FROM generations ORDER BY id").all()),
+      events: z
+        .array(eventSchema)
+        .parse(
+          db.prepare("SELECT * FROM events ORDER BY id DESC LIMIT 100").all()
+        ),
+    };
   }
   function reset() {
-    db.exec("DELETE FROM events; DELETE FROM jobs; DELETE FROM generations;");
+    db.exec("DELETE FROM events; DELETE FROM generations;");
     const seed = [
       {
         id: "gen-atelier",
@@ -80,16 +80,8 @@ export function openStore(path: string) {
         item.status,
         item.job,
         item.error,
-        Date.now(),
+        Date.now()
       );
-      db.prepare("INSERT INTO jobs VALUES (?, ?, ?, ?, ?)").run(
-        item.job,
-        item.id,
-        item.status,
-        Date.now(),
-        item.error,
-      );
-      log(item.id, item.job, "provider.result", item.status);
     }
   }
   if (!getGeneration("gen-atelier")) reset();
